@@ -4,9 +4,7 @@
 | --- | --- | --- |
 | Hazza Danta Hermandanu | 5025241117 | B |
 
-Program ini mengimplementasikan distribusi key melalui Key Distribution Center (KDC), kemudian menggunakan key sesi tersebut untuk komunikasi dua arah antara Alice dan Bob. Inti AES-128, key expansion, mode CBC, padding, dan pertukaran lima langkah KDC ditulis sendiri menggunakan Python.
-
-Pembahasan disusun per fungsi atau metode. Potongan code menampilkan bagian yang dibahas; sebagian fungsi panjang dipotong agar alur utamanya lebih mudah dilihat. Definisi lengkapnya tetap berada pada file program masing-masing.
+Program ini mengimplementasikan distribusi key melalui Key Distribution Center (KDC), kemudian menggunakan key sesi tersebut untuk komunikasi dua arah antara Alice dan Bob. Inti AES-128, key expansion, mode CBC, padding, dan pertukaran lima langkah KDC ditulis menggunakan Python.
 
 <br><br>
 
