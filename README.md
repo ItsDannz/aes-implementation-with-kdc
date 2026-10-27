@@ -1,4 +1,4 @@
-# AES-128 Implementation With KDC
+<img width="1570" height="483" alt="image" src="https://github.com/user-attachments/assets/bb45fa83-7778-4283-a0c5-cdb50ab33cae" /># AES-128 Implementation With KDC
 
 | Nama | NRP | Kelas |
 | --- | --- | --- |
@@ -112,7 +112,62 @@ Seluruh round key dihitung dari key asli yang sama, sehingga tidak diperlukan pe
 
 <br><br>
 
-## 
+## Pengujian
+### Nyalakan KDC, Bob, dan Alice Serta Input Ka dan Kb 
+Jalankan `python3 kdc.py --host 192.168.56.1 --port 9000 --ttl 1800` di device KDC
+<img width="801" height="106" alt="image" src="https://github.com/user-attachments/assets/c3125586-64cd-44ed-b763-75cec4cfaa62" />
+
+<br>
+
+Jalankan `python3 bob.py --host 192.168.56.20 --port 9002 --kdc-ip 192.168.56.1 --peer-ip 192.168.56.10 --peer-port 9001` di device Bob
+<img width="1226" height="234" alt="image" src="https://github.com/user-attachments/assets/a58e6346-c5ae-473c-8358-a3693e586a43" />
+
+<br>
+
+Jalankan `python3 alice.py --host 192.168.56.10 --port 9001 --kdc-ip 192.168.56.1 --peer-ip 192.168.56.20 --peer-port 9002` di device Alice
+<img width="1210" height="278" alt="image" src="https://github.com/user-attachments/assets/30ac7429-f1c4-477e-b118-ba8fe7699f9d" />
+
+<br>
+
+### Alice Mencoba Connect
+Alice menjalankan `/connect` dan alogritma di KDC akan dijalankan
+<img width="1211" height="372" alt="image" src="https://github.com/user-attachments/assets/2114067e-79b9-49c1-87fa-309d070dd081" />
+
+<br>
+
+Jika Ka dan Challenge sesuai, Bob akan terhubung dengan Alice
+<img width="1547" height="118" alt="image" src="https://github.com/user-attachments/assets/768eb28b-5caf-4283-b93b-4e99bda5f413" />
+
+<br>
+
+### Alice dan Bob Saling Mengirim Pesan
+####Alice
+<img width="1208" height="405" alt="image" src="https://github.com/user-attachments/assets/c6303ee7-4896-40f1-b3c5-fb85b4aec2a9" />
+
+<br>
+
+#### Bob
+<img width="1550" height="290" alt="image" src="https://github.com/user-attachments/assets/9ad36b42-13e1-44c2-a5a6-9f51ce485407" />
+
+<br>
+
+### Pengujian dengan Wireshark
+Masukkan filter `tcp.port == 9000 || tcp.port == 9001 || tcp.port == 9002`
+<br>
+
+### Alice Connect & Bob Respond
+<img width="1570" height="483" alt="image" src="https://github.com/user-attachments/assets/2f5feec9-e5ab-4165-a55e-9f2fb2c36555" />
+
+<br>
+
+### Alice & Bob mengirim pesan
+Alice mengirim pesan `halo bob`<br>
+<img width="1570" height="65" alt="image" src="https://github.com/user-attachments/assets/6c6f0753-5746-462e-bb0a-34664df30a2d" />
+
+<br>
+
+
+
 
 ## Penjelasan Code
 ### 1. aes.py
