@@ -8,7 +8,7 @@ Program ini mengimplementasikan distribusi key melalui Key Distribution Center (
 
 Pembahasan disusun per fungsi atau metode. Potongan code menampilkan bagian yang dibahas; sebagian fungsi panjang dipotong agar alur utamanya lebih mudah dilihat. Definisi lengkapnya tetap berada pada file program masing-masing.
 
-<br.<br>
+<br><br>
 
 ## 1. Gambaran Program
 
