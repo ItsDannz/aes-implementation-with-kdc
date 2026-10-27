@@ -8,7 +8,7 @@ Program ini mengimplementasikan distribusi key melalui Key Distribution Center (
 
 <br><br>
 
-## 1. Gambaran Program
+## Gambaran Program
 
 ### 1.1. Entitas yang digunakan
 
@@ -98,7 +98,7 @@ Fungsi g memproses sebuah word melalui tiga tahap, yaitu RotWord untuk memutar u
 Seluruh round key dihitung dari key asli yang sama, sehingga tidak diperlukan pembuatan key acak baru pada setiap round.
 <br><br>
 
-## 2. Hubungan Antarfile
+## Hubungan Antarfile
 
 | File | Pembagian kerja |
 | --- | --- |
@@ -111,6 +111,8 @@ Seluruh round key dihitung dari key asli yang sama, sehingga tidak diperlukan pe
 | `bob.py` | Client dengan identitas `bob` |
 
 <br><br>
+
+## 
 
 ## Penjelasan Code
 ### 1. aes.py
