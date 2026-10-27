@@ -1,5 +1,3 @@
-<img width="1570" height="483" alt="image" src="https://github.com/user-attachments/assets/bb45fa83-7778-4283-a0c5-cdb50ab33cae" /># AES-128 Implementation With KDC
-
 | Nama | NRP | Kelas |
 | --- | --- | --- |
 | Hazza Danta Hermandanu | 5025241117 | B |
