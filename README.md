@@ -8,6 +8,8 @@ Program ini mengimplementasikan distribusi key melalui Key Distribution Center (
 
 Pembahasan disusun per fungsi atau metode. Potongan code menampilkan bagian yang dibahas; sebagian fungsi panjang dipotong agar alur utamanya lebih mudah dilihat. Definisi lengkapnya tetap berada pada file program masing-masing.
 
+<br.<br>
+
 ## 1. Gambaran Program
 
 ### 1.1. Entitas yang digunakan
@@ -40,8 +42,63 @@ Pembahasan disusun per fungsi atau metode. Potongan code menampilkan bagian yang
 - Ciphertext, IV, dan tag: direpresentasikan sebagai teks Hex dalam paket JSON
 - Ukuran blok AES: 16 byte
 
-### Visualisasi Program
+### 1.4. Architecture
 
+#### 1.4.1. Algortima KDC
+<img width="696" height="429" alt="image" src="https://github.com/user-attachments/assets/11a90fd6-241b-45e4-a4d3-5973ee4a4ef7" /><br>
+Arsitektur ini melibatkan tiga entitas, yaitu Alice sebagai initiator, Bob sebagai responder, dan Key Distribution Center (KDC) sebagai pembuat serta pembagi session key. Sebelum komunikasi dimulai, Alice dan KDC sudah memiliki key jangka panjang Ka, sedangkan Bob dan KDC memiliki Kb.
+Pada langkah pertama, Alice mengirimkan identitas Alice, identitas Bob, dan nonce N1 kepada KDC. KDC kemudian membuat session key Ks dan mengirimkan dua paket kepada Alice. Paket pertama dienkripsi menggunakan Ka dan berisi Ks, kedua identitas, serta N1. Paket kedua merupakan tiket untuk Bob, berisi Ks dan identitas Alice, yang dienkripsi menggunakan Kb. Alice memeriksa N1 pada paket pertama, kemudian meneruskan tiket kepada Bob.
+Setelah membuka tiket menggunakan Kb, Bob memperoleh Ks dan mengirimkan tantangan berupa nonce N2 yang dienkripsi menggunakan Ks. Alice menjawab dengan mengirimkan hasil fungsi f(N2) menggunakan key yang sama. Pada program ini, fungsi tersebut berupa N2 − 1. Bob memeriksa jawaban untuk memastikan bahwa pihak yang berkomunikasi dengannya menguasai Ks. Setelah proses selesai, Alice dan Bob menggunakan Ks untuk komunikasi AES dua arah.
+<br><br>
+
+#### 1.4.2. Struktur Utama AES
+<img width="724" height="677" alt="image" src="https://github.com/user-attachments/assets/2dd028f8-6c57-4aca-a264-94e7946d45f1" /><br>
+AES memproses satu blok plaintext sepanjang 16 byte atau 128 bit. Byte tersebut disusun menjadi matriks state berukuran 4 × 4, kemudian mengalami transformasi awal dan sejumlah round hingga menghasilkan ciphertext sepanjang 16 byte.
+Pada AES-128, key berukuran 16 byte dan proses enkripsi menggunakan 10 round. Transformasi awal berupa AddRoundKey menggunakan round key ke-0. Round 1–9 menjalankan SubBytes, ShiftRows, MixColumns, dan AddRoundKey. Round ke-10 menjalankan tiga transformasi karena tidak menggunakan MixColumns. Bagian key expansion menyiapkan round key yang diperlukan pada setiap tahap.
+<br><br>
+
+#### 1.4.3. Enkrisi & Dekripsi Dalam AES
+<img width="799" height="677" alt="image" src="https://github.com/user-attachments/assets/1276c836-9bf7-4795-98e0-19d29aa3e5a0" /><br>
+Bagian kiri memperlihatkan proses perubahan plaintext menjadi ciphertext. Proses dimulai dengan AddRoundKey, dilanjutkan sembilan round dengan empat transformasi, kemudian satu round terakhir tanpa MixColumns.
+Bagian kanan menunjukkan proses dekripsi yang dibaca dari bawah ke atas dimana ciphertext menjadi masukan, sedangkan plaintext di bagian atas merupakan hasil akhirnya. Dekripsi menggunakan inverse ShiftRows, inverse SubBytes, AddRoundKey, dan inverse MixColumns. Round key digunakan dalam urutan terbalik, dimulai dari round key ke-10 sampai round key ke-0.
+<br><br>
+
+##### 1.4.3.1. Substitute Bytes
+<img width="999" height="659" alt="image" src="https://github.com/user-attachments/assets/d509c747-ab48-4386-9eb8-4248b0fb71f1" /><br>
+SubBytes mengganti nilai setiap byte pada state menggunakan tabel substitusi yang disebut S-box. Setiap byte menjadi indeks untuk memperoleh nilai penggantinya dari tabel tersebut.
+Transformasi ini mengubah nilai byte, sementara posisinya dalam state tetap sama. Seluruh 16 byte mengalami substitusi secara independen.
+<br><br>
+
+##### 1.4.3.2. Shift Rows
+<img width="1128" height="663" alt="image" src="https://github.com/user-attachments/assets/aee09b50-8fc7-415d-8d72-cb907f276965" /><br>
+ShiftRows menggeser posisi byte pada setiap baris state secara melingkar ke kiri. Baris pertama tidak digeser, baris kedua digeser satu posisi, baris ketiga dua posisi, dan baris keempat tiga posisi.
+Pergeseran melingkar berarti byte yang melewati ujung kiri akan masuk kembali dari ujung kanan. Operasi ini mempertahankan nilai setiap byte, tetapi mengubah susunannya. Dengan demikian, byte yang sebelumnya berada dalam satu kolom tersebar ke kolom lain sebelum diproses oleh MixColumns.
+<br><br>
+
+##### 1.4.3.3. Mix Columns
+<img width="1152" height="663" alt="image" src="https://github.com/user-attachments/assets/7b1a77e7-8964-4923-9039-9b5ce7b40726" /><br>
+MixColumns mengolah setiap kolom state menggunakan perkalian dengan matriks konstanta AES. Setiap byte keluaran diperoleh dari gabungan keempat byte pada kolom masukan. Perhitungannya dilakukan dalam GF(2^8), dengan XOR sebagai operasi penjumlahannya.
+Matriks enkripsi menggunakan konstanta 02, 03, dan 01, dengan baris pertama 02 03 01 01. Hasil transformasinya tetap berupa state 4 × 4 byte. Untuk dekripsi, inverse MixColumns menggunakan matriks berbeda dengan konstanta Hex 0E, 0B, 0D, dan 09, yang setara dengan desimal 14, 11, 13, dan 9.
+<br><br>
+
+##### 1.4.3.4. Round Key
+<img width="1152" height="663" alt="image" src="https://github.com/user-attachments/assets/8b68a641-c44f-466a-b83d-b1e4343759a8" /><br>
+AddRoundKey menggabungkan state dengan round key menggunakan operasi XOR pada byte yang bersesuaian. Setiap round key berukuran 16 byte, sehingga seluruh byte state memperoleh pasangan byte key.
+Tanda tambah pada diagram menyatakan XOR. Operasi ini memasukkan pengaruh key ke dalam proses enkripsi. AddRoundKey juga digunakan saat dekripsi karena melakukan XOR dua kali dengan nilai key yang sama akan mengembalikan nilai semula.
+<br><br>
+
+#### 1.4.4. Proses Single Round AES
+<img width="1600" height="889" alt="image" src="https://github.com/user-attachments/assets/9fcac81a-08f7-4d21-9fc9-e5dfcd16cec8" /><br>
+AES-128 menggunakan 11 round key, yaitu round key ke-0 untuk transformasi awal dan round key ke-1 sampai ke-10 untuk sepuluh round berikutnya. Setiap round key terdiri atas empat word, dengan satu word berukuran empat byte.
+Key expansion menghasilkan total 44 word, dari w0 sampai w43. Transformasi awal memakai w0–w3, round pertama memakai w4–w7, dan round terakhir memakai w40–w43. Empat word pertama merupakan key asli. Pada enkripsi chat dalam program ini, key asli tersebut adalah session key Ks.
+<br><br>
+
+#### 1.4.5. Key Expand
+<img width="1600" height="889" alt="image" src="https://github.com/user-attachments/assets/582cfd5f-7806-4eb6-90f4-07136ce4b2cc" /><br>
+Key expansion mengexpand key asli menjadi rangkaian round key. Pada AES-128, key awal dibagi menjadi empat word, yaitu w0, w1, w2, dan w3.
+Fungsi g memproses sebuah word melalui tiga tahap, yaitu RotWord untuk memutar urutan byte, SubWord untuk mengganti byte menggunakan S-box, dan XOR dengan Rcon. Hasilnya digunakan untuk membentuk word berikutnya, misalnya w4 = w0 XOR g(w3). Word selanjutnya dibentuk melalui XOR dengan word yang telah tersedia. Proses ini berlanjut hingga diperoleh 44 word.
+Seluruh round key dihitung dari key asli yang sama, sehingga tidak diperlukan pembuatan key acak baru pada setiap round.
+<br><br>
 
 ## 2. Hubungan Antarfile
 
@@ -54,6 +111,8 @@ Pembahasan disusun per fungsi atau metode. Potongan code menampilkan bagian yang
 | `participant.py` | Listener client, pembentukan sesi, challenge-response, chat, menu input |
 | `alice.py` | Client dengan identitas `alice` |
 | `bob.py` | Client dengan identitas `bob` |
+
+<br><br>
 
 ## Penjelasan Code
 ### 1. aes.py
@@ -1125,5 +1184,8 @@ if __name__ == "__main__":
 
 Guard `if __name__ == "__main__"` memastikan program dijalankan ketika file dieksekusi langsung. Parameter `"alice"` atau `"bob"` menentukan identitas, peer, port default, prompt key, dan label terminal.
 
+<br><br>
+
 ## Referensi
-1. https://csrc.nist.gov/pubs/sp/800/38/a/final
+1. https://nesoacademy.org
+2. https://csrc.nist.gov/pubs/sp/800/38/a/final
