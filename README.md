@@ -1,4 +1,4 @@
-# Tugas 2 Keamanan Informasi - Pembahasan Code AES dan KDC
+# AES-128 Implementation With KDC
 
 | Nama | NRP | Kelas |
 | --- | --- | --- |
